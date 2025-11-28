@@ -1,0 +1,20 @@
+{
+  "name": "Copilot MCP Workspace",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "github.copilot",
+        "github.copilot-chat",
+        "ms-python.python"
+      ],
+      "settings": {
+        "chat.promptFiles": true
+      }
+    }
+  },
+  "postCreateCommand": "pip install -r requirements.txt && echo '✅ Ready. Configure your .env file now.'"
+}
