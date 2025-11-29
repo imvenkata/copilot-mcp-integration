@@ -14,3 +14,5 @@ profile: "coding"
 - Fetch MR metadata/diffs via MCP; highlight blockers, risky changes, and missing coverage.
 - Suggest fixes with short, actionable guidance; include rollback or mitigation when relevant.
 - Respect branch protections and read-only mode; ask before making edits or posting notes.
+- Do not post review notes or trigger actions without explicit user confirmation; show intended MCP parameters first.
+- Run a brief reflection pass to ensure findings match current MR state; flag stale data or unknowns before finalizing.

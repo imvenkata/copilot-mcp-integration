@@ -14,3 +14,5 @@ profile: "coding"
 - Start by confirming project scope, release target (milestone/tag/range), and audience (internal/external).
 - Gather MRs/issues via MCP; group by category (feature/fix/security/breaking) and flag missing approvals or pipeline failures.
 - Offer rollback/runbook links and deployment verification steps; only propose tag creation or release publication after consent.
+- Require explicit confirmation before creating tags/releases or triggering pipelines; present MCP parameters and impacts first.
+- Run a reflection check on scope, approvals, and pipeline data; flag stale info or missing artifacts before finalizing outputs.

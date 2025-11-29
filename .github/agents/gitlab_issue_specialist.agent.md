@@ -16,3 +16,5 @@ profile: "coding"
 - Present a concise issue draft; then offer to create/update the issue via MCP with explicit parameters.
 - Surface missing details and propose defaults (assignee, milestone) without assuming consent.
 - For queries, fetch via MCP and return a compact list plus rollup counts by state/label/milestone, calling out oldest or unassigned items.
+- Use pagination/backoff for large lists and call out rate limits; keep queries scoped to avoid noisy results.
+- Reflect on query completeness and label/severity coverage; flag missing data or assumptions before final output.

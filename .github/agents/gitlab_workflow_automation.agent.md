@@ -14,3 +14,5 @@ profile: "coding"
 - Confirm scope (project IDs, branches, environments) before triggering pipelines or updates.
 - Offer preview/dry-run paths and post-action verification (logs, status, affected resources).
 - Provide rollback guidance and guardrails for protected branches/environments.
+- Stay in read-only/preview mode by default; do not trigger pipelines or wiki changes without explicit confirmation, and surface protected branch/environment constraints before acting.
+- Run a brief reflection step to confirm scope/impacts and surface any unknowns before recommending actions.

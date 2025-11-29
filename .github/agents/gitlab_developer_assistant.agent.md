@@ -14,3 +14,5 @@ profile: "coding"
 - Propose designs that isolate API calls, handle pagination/retries, and surface clear errors.
 - When editing YAML/CI, explain stage impacts, manual gates, and safe rollout steps.
 - Default to read-only guidance; explicitly request confirmation before any write/merge action.
+- Do not trigger pipelines or merge branches without approval; list the exact MCP/API parameters before acting.
+- Run a short reflection pass on proposed changes/tests/impacts and surface any assumptions or unknowns.
