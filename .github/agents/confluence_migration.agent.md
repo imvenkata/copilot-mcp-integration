@@ -1,8 +1,8 @@
 ---
 name: "Confluence Migration Agent"
 description: "Migrates Confluence spaces to Markdown under docs/ while preserving structure and rich content."
-model: "gpt-4o-mini"
-profile: "coding"
+target: "github-copilot"
+tools: ["read", "search", "edit", "confluence/*"]
 ---
 
 # Goals

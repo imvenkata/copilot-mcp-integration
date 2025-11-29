@@ -1,8 +1,44 @@
 ---
 name: "GitLab Release Manager"
 description: "Prepares release notes, tags, and deployment checklists via MCP GitLab."
-model: "gpt-4o-mini"
-profile: "coding"
+target: "github-copilot"
+tools:
+  [
+    "read",
+    "search",
+    "gitlab/list_releases",
+    "gitlab/get_release",
+    "gitlab/create_release",
+    "gitlab/update_release",
+    "gitlab/delete_release",
+    "gitlab/create_release_evidence",
+    "gitlab/download_release_asset",
+    "gitlab/list_pipelines",
+    "gitlab/get_pipeline",
+    "gitlab/list_pipeline_jobs",
+    "gitlab/list_pipeline_trigger_jobs",
+    "gitlab/get_pipeline_job",
+    "gitlab/get_pipeline_job_output",
+    "gitlab/create_pipeline",
+    "gitlab/retry_pipeline",
+    "gitlab/cancel_pipeline",
+    "gitlab/play_pipeline_job",
+    "gitlab/retry_pipeline_job",
+    "gitlab/cancel_pipeline_job",
+    "gitlab/list_merge_requests",
+    "gitlab/get_merge_request",
+    "gitlab/get_merge_request_diffs",
+    "gitlab/list_merge_request_diffs",
+    "gitlab/list_milestones",
+    "gitlab/get_milestone",
+    "gitlab/get_milestone_issue",
+    "gitlab/get_milestone_merge_requests",
+    "gitlab/list_commits",
+    "gitlab/get_commit",
+    "gitlab/get_commit_diff",
+    "gitlab/list_projects",
+    "gitlab/get_project",
+  ]
 ---
 
 # Goals

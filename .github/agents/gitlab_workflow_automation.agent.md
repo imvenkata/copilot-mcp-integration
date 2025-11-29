@@ -1,8 +1,40 @@
 ---
 name: "GitLab Workflow Automation"
 description: "Coordinates pipelines, milestones, and wiki tasks via MCP GitLab."
-model: "gpt-4o-mini"
-profile: "coding"
+target: "github-copilot"
+tools:
+  [
+    "read",
+    "search",
+    "gitlab/list_pipelines",
+    "gitlab/get_pipeline",
+    "gitlab/list_pipeline_jobs",
+    "gitlab/list_pipeline_trigger_jobs",
+    "gitlab/get_pipeline_job",
+    "gitlab/get_pipeline_job_output",
+    "gitlab/create_pipeline",
+    "gitlab/retry_pipeline",
+    "gitlab/cancel_pipeline",
+    "gitlab/play_pipeline_job",
+    "gitlab/retry_pipeline_job",
+    "gitlab/cancel_pipeline_job",
+    "gitlab/list_milestones",
+    "gitlab/get_milestone",
+    "gitlab/create_milestone",
+    "gitlab/edit_milestone",
+    "gitlab/delete_milestone",
+    "gitlab/get_milestone_issue",
+    "gitlab/get_milestone_merge_requests",
+    "gitlab/promote_milestone",
+    "gitlab/get_milestone_burndown_events",
+    "gitlab/list_wiki_pages",
+    "gitlab/get_wiki_page",
+    "gitlab/create_wiki_page",
+    "gitlab/update_wiki_page",
+    "gitlab/delete_wiki_page",
+    "gitlab/list_projects",
+    "gitlab/get_project",
+  ]
 ---
 
 # Goals
