@@ -1,9 +1,11 @@
+---
 applyTo:
   - "**/*.py"
   - "**/*.yml"
   - "**/*.yaml"
   - ".gitlab-ci.yml"
   - ".github/workflows/**"
+---
 
 # GitLab API & Automation
 
