@@ -1,6 +1,6 @@
 # Quick Reference Guide
 
-Fast lookup tables for common GitLab and Confluence MCP operations.
+Fast lookup tables for common GitLab and Confluence MCP operations. For end-to-end workflows and safety guidance, see `docs/workflow/example-workflows.md`.
 
 ## GitLab Quick Commands
 
@@ -214,55 +214,6 @@ Ensure the redirect URI matches the GitLab application configuration; keep the c
 | `CONFLUENCE_URL`       | Yes      | -       | Confluence instance URL |
 | `CONFLUENCE_USERNAME`  | Yes      | -       | Username or email       |
 | `CONFLUENCE_API_TOKEN` | Yes      | -       | API token               |
-
-## Common Patterns
-
-### Daily Code Review Workflow
-
-```
-1. "List all open MRs assigned to me"
-2. "@workspace /review-merge-request 42"
-3. "Create draft notes for improvements"
-4. "Publish draft notes when ready"
-```
-
-### Feature Development Workflow
-
-```
-1. "Create branch feature/new-feature from main"
-2. [Make changes locally]
-3. "Push changes to feature/new-feature" (requires approval)
-4. "@workspace /create-merge-request feature/new-feature main 'Add new feature'"
-5. "@workspace /trigger-pipeline feature/new-feature" (requires `USE_PIPELINE=true` and approval)
-```
-
-### Sprint Planning Workflow
-
-```
-1. "@workspace /manage-milestones create 'Sprint 16' 123 '2024-02-16' '2024-02-29'"
-2. "List all issues with label 'backlog'"
-3. [Assign issues to Sprint 16]
-4. "@workspace /manage-milestones get 42 123"
-```
-
-### Bug Fix Workflow
-
-```
-1. "@workspace /create-issue 'Fix login timeout' bug 123 high"
-2. "Create branch bugfix/login-timeout from main"
-3. [Fix the bug]
-4. "@workspace /create-merge-request bugfix/login-timeout main 'Fix login timeout'" (confirm before posting)
-5. "Link MR to issue #42"
-```
-
-### Documentation Update Workflow
-
-```
-1. "@workspace /manage-wiki list 123"
-2. "@workspace /manage-wiki get api-guide 123"
-3. "@workspace /manage-wiki update api-guide 123"
-4. [Provide new content]
-```
 
 ## Error Messages & Solutions
 

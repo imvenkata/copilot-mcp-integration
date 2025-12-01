@@ -2,6 +2,8 @@
 
 Quick reference for using the repo's Copilot prompts (`.github/prompts/*.prompt.md`) and agents (`.github/agents/*.agent.md`). Prompts are task-specific templates you invoke on demand; agents are personas with behaviors/goals you keep active for a session. See also: `docs/copilot-mcp-notes.md` for when instructions vs prompts vs agents apply.
 
+Cheat sheet: `docs/quick-reference.md` for command snippets, env vars, and config examples.
+
 ## Quick nav
 - [Baseline instructions](#baseline-instructions-auto-applied)
 - [How to run + safety](#how-to-run--safety-checklist)
@@ -15,6 +17,7 @@ Quick reference for using the repo's Copilot prompts (`.github/prompts/*.prompt.
 - Instructions stack: global + any matching scoped instructions, alongside whichever prompt/agent you pick.
 
 ## How to run + safety checklist
+- Stay within the configured GitLab host/group and `GITLAB_ALLOWED_PROJECT_IDS`; decline cross-project requests and confirm scope before any action.
 - Confirm MCP parameters before acting: project/group path, issue/MR ID, branch/tag, action, and desired read-only vs write behavior.
 - Call out permissions early: required tokens/env vars (`GITLAB_PERSONAL_ACCESS_TOKEN`, `GITLAB_API_URL`), protected branches, approvals, environments.
 - Stay read-only unless you explicitly confirm a write/trigger; show MCP call parameters first.
@@ -26,17 +29,17 @@ Quick reference for using the repo's Copilot prompts (`.github/prompts/*.prompt.
 ### Implement Issue — `implement-issue`
 - When: Deliver a small, testable change for a GitLab issue.
 - Required: project ID/path, issue ID, target branch, delivery branch name.
-- Best practices: fetch and restate issue via MCP, plan scope/tests/risks, outline MR draft metadata (title, description sections, labels/reviewers).
+- Best practices: confirm host/group/project scope, prefer a feature branch (avoid committing directly to protected/default), fetch and restate issue via MCP, plan scope/tests/risks, outline MR draft metadata (title, description sections, labels/reviewers).
 
 ### Review Merge Request — `review-merge-request`
 - When: Structured MR review with actionable findings.
 - Required: project ID/path, MR ID, review scope (full/targeted/follow-up).
-- Best practices: fetch MR state/pipelines/approvals, order findings by severity, flag missing tests/docs/branch blockers, draft comments with file/line refs.
+- Best practices: confirm host/group/project scope, use the latest MR version and flag stale/outdated branches, fetch MR state/pipelines/approvals, order findings by severity, flag missing tests/docs/branch blockers, draft comments with file/line refs (draft-only unless approved to post).
 
 ### MR Health Check — `mr-health-check`
 - When: Quick readiness snapshot before merge.
 - Required: project ID/path, MR ID. Optional: target branch, priority labels.
-- Best practices: collect approvals/discussions/pipelines, list failing jobs with URLs, score readiness, highlight missing docs/tests and risky signals.
+- Best practices: confirm host/group/project scope, use the latest MR version and flag if branch is behind target, collect approvals/discussions/pipelines, list failing jobs with URLs, score readiness, highlight missing docs/tests and risky signals.
 
 ### Flaky Test Triage — `flaky-test-triage`
 - When: Investigating an intermittent test on a branch/tag.
@@ -71,7 +74,7 @@ Quick reference for using the repo's Copilot prompts (`.github/prompts/*.prompt.
 ### Trigger Pipeline — `trigger-pipeline`
 - When: Trigger new pipeline, retry failed pipeline, or play a manual job.
 - Required: project ID/path; branch or pipeline ID; action (trigger/retry/play).
-- Best practices: confirm protected branches/env impacts, needed variables, and any dry-run/skip rules; show exact MCP trigger/retry call and how to monitor.
+- Best practices: confirm host/group/project scope and that pipelines are enabled (`USE_PIPELINE=true`), confirm protected branches/env impacts, needed variables, and any dry-run/skip rules; show exact MCP trigger/retry call and how to monitor; proceed only with explicit approval.
 
 ### Prepare Release Notes — `prepare-release-notes`
 - When: Compile release notes for a milestone, tag, or range.
@@ -84,6 +87,8 @@ Quick reference for using the repo's Copilot prompts (`.github/prompts/*.prompt.
 - Best practices: define attachment/link rewriting and hierarchy mapping, note rate/size limits and credentials, outline export/transform/validate steps; draft MCP commands for approval.
 
 ## Agent workflows (`.github/agents`)
+
+All GitLab agents confirm host/group/project scope and stay within `GITLAB_ALLOWED_PROJECT_IDS`; they operate read-only until you approve writes or triggers.
 
 ### GitLab Code Reviewer
 - Purpose: Structured MR reviews with severity-ordered findings.
