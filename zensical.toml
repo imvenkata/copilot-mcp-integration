@@ -9,5 +9,6 @@ nav = [
   {"Quick Reference" = "quick-reference.md"},
   {"Workflows" = [
     {"Example Workflows" = "workflow/example-workflows.md"}
-  ]}
+  ]},
+  {"Editor Setup" = "editor-setup.md"}
 ]

@@ -1,5 +1,7 @@
 # Copilot + GitLab MCP: How to pick instructions, prompts, and agents
 
+Requires Copilot with MCP enabled and GitLab/Confluence tokens configured per `docs/quick-reference.md`.
+
 ## How instructions apply
 - Repo-wide (always on): `.github/copilot-instructions.md` sets the baseline (read-only bias, use MCP first, call out permissions/branch protections).
 - Scoped (path-aware): `.github/instructions/*.instructions.md` only apply when your conversation touches matching paths.
