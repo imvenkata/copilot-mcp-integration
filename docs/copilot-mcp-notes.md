@@ -25,8 +25,10 @@
 - Pipeline action: use `trigger-pipeline` prompt to trigger/retry/play with guardrails; the GitLab Workflow Automation agent coordinates pipelines/milestones/wiki tasks.
 
 ## Quick safety checklist (any GitLab MCP task)
+- Confirm scope and stay within the configured GitLab host/group and `GITLAB_ALLOWED_PROJECT_IDS`; decline cross-project requests.
 - Confirm MCP params before acting: project/group ID or path; issue/MR ID; branch; action; desired read-only vs write.
 - Call out permissions upfront: PAT/OAuth env vars (`GITLAB_PERSONAL_ACCESS_TOKEN`, `GITLAB_API_URL`), branch protections, approvals, environments.
+- Prefer feature branches; avoid committing directly to protected/default branches unless explicitly approved.
 - Prefer MCP for data; if proposing writes, show the tool name and parameters and get consent first.
 - Surface tests/validation and pipeline impacts when editing CI/YAML or automation code.
 
@@ -38,9 +40,9 @@
 - **Review MR 42 and suggest fixes, don’t post comments yet**
   - Global instructions apply.
   - Choose the “GitLab Code Reviewer” agent or the `review-merge-request` prompt.
+  - Use the latest MR version and flag if the branch is behind target; keep notes draft-only unless approved to post.
   - If you open CI files in the MR, the GitLab scoped instructions also influence guidance (pipeline impacts, permissions).
 - **Trigger the release pipeline on main and prep notes for milestone 15.1**
   - Global instructions apply (warn about approvals/protections).
-  - Use `trigger-pipeline` prompt for the pipeline action; `prepare-release-notes` prompt for notes.
+  - Use `trigger-pipeline` prompt for the pipeline action (only if `USE_PIPELINE=true` and with explicit approval); `prepare-release-notes` prompt for notes.
   - If you touch `.gitlab-ci.yml`, the GitLab scoped instructions apply too.
-
