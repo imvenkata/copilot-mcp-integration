@@ -1,0 +1,14 @@
+[project]
+site_name = "Copilot MCP Docs"
+# TODO: set to your production URL when publishing
+site_url = "http://localhost:8000"
+docs_dir = "docs"
+
+nav = [
+  {"Home" = "index.md"},
+  {"Overview & Safety" = "copilot-mcp-notes.md"},
+  {"Quick Reference" = "quick-reference.md"},
+  {"Workflows" = [
+    {"Example Workflows" = "workflow/example-workflows.md"}
+  ]}
+]

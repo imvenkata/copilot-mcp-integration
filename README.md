@@ -21,3 +21,21 @@ In Copilot Chat, click the **Attach Context (+)** button or type `#` to select a
 * `#trigger-pipeline` or `#manage-milestones` — CI/CD and milestone helpers.
 * `#migrate-confluence-space` — migrate Confluence content to markdown.
 * `#query-issues`, `#prepare-release-notes`, `#implement-issue` — additional workflows.
+
+## 📚 Documentation site (Zensical)
+We ship a Zensical config (`zensical.toml`) that turns the Markdown in `docs/` into a static site.
+
+### Serve locally
+1. `python3 -m venv .venv && source .venv/bin/activate`
+2. `pip install zensical`
+3. `zensical serve` then open http://localhost:8000
+
+### Build static site
+1. Ensure `zensical` is installed (see above).
+2. `zensical build` (output goes to `site/`, which is git-ignored).
+
+Navigation is defined in `zensical.toml` and covers:
+- Home (`docs/index.md`)
+- Overview & Safety (`docs/copilot-mcp-notes.md`)
+- Quick Reference (`docs/quick-reference.md`)
+- Workflows (`docs/workflow/example-workflows.md`)
