@@ -39,3 +39,8 @@ Navigation is defined in `zensical.toml` and covers:
 - Overview & Safety (`docs/copilot-mcp-notes.md`)
 - Quick Reference (`docs/quick-reference.md`)
 - Workflows (`docs/workflow/example-workflows.md`)
+
+### Publish to GitHub Pages
+- CI: `.github/workflows/publish-docs.yml` builds the site on `main` and deploys to GitHub Pages.
+- Config: update `site_url` in `zensical.toml` to your Pages URL (e.g., `https://<user>.github.io/copilot-mcp-integration`).
+- Enable Pages: in repo settings, set Pages source to “GitHub Actions”.

@@ -1,7 +1,6 @@
 [project]
 site_name = "Copilot MCP Docs"
-# TODO: set to your production URL when publishing
-site_url = "http://localhost:8000"
+site_url = "https://<your-user>.github.io/copilot-mcp-integration"
 docs_dir = "docs"
 
 nav = [
