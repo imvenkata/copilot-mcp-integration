@@ -17,7 +17,7 @@ Use MCP GitLab tools in read-only mode to analyze flaky tests. Confirm before tr
 - Relevant job/stage filters
 
 ## Flow
-1. Confirm scope (branch/tag, test pattern) and pagination for recent pipelines/jobs.
+1. Confirm GitLab host/namespace/project and scope (branch/tag, test pattern); use the configured default host/group if unspecified and decline cross-project requests. Set pagination for recent pipelines/jobs.
 2. Fetch recent runs via MCP; collect pass/fail counts, durations, and log snippets for the test.
 3. Compute failure rate and note patterns (by runner, stage, commit, time of day, retry).
 4. Identify likely causes: recent code changes, slow setup, external calls, data races, or flaky fixtures.

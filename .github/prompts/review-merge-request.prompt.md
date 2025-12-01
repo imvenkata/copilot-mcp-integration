@@ -7,12 +7,14 @@ description: "Perform a structured GitLab MR review with actionable findings."
 
 Use MCP GitLab tools in read-only mode unless the user approves posting notes. Focus on correctness and risk.
 
+- Confirm GitLab host/namespace/project; use the configured default host/group if none is provided and decline cross-project requests.
+
 ## Required
 - Project ID/path and MR ID
 - Scope (full review, targeted area, or follow-up)
 
 ## Review Flow
-1. Fetch MR details (diffs, pipeline status, approvals, labels).
+1. Confirm host/namespace/project, then fetch MR details (diffs, pipeline status, approvals, labels) using the latest MR version; flag if the branch is behind target or data is stale.
 2. Identify high-severity issues first (functional bugs, security, regressions).
 3. Capture missing tests/docs and branch/pipeline blockers.
 4. Propose concise, actionable comments (what/why/how) with file/line references.

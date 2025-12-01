@@ -7,6 +7,8 @@ description: "Summarize one or more GitLab issues with MCP, including recent com
 
 Use this to get a high-level understanding of one or many issues. Default to read-only; do not post notes without confirmation.
 
+- Confirm GitLab host/namespace/project; use the configured default host/group if none is provided and decline cross-project requests.
+
 ## Required
 - Project ID/path
 - Issue ID or list of issue IDs
@@ -16,7 +18,7 @@ Use this to get a high-level understanding of one or many issues. Default to rea
 - Filters to flag (severity/priority/labels, assignee, milestone)
 
 ## Flow
-1. Confirm scope (project, issue IDs, comment window) and pagination for notes.
+1. Confirm host/namespace/project and scope (issue IDs, comment window); set pagination for notes.
 2. Fetch each issue via MCP GitLab: title, state, labels, assignee(s), milestone, updated time.
 3. Fetch recent comments/notes per issue (respect the window/limit); capture author, timestamp, and key points.
 4. Produce a compact summary per issue and an overall rollup (states, priorities, owners, oldest updates).

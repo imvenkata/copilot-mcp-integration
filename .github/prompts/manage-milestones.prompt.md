@@ -7,6 +7,8 @@ description: "Create or update GitLab milestones and related issue lists."
 
 Use this to list, create, or update milestones. Default to read-only until the user approves changes.
 
+- Confirm GitLab host/namespace/project; use the configured default host/group if none is provided and decline cross-project requests.
+
 ## Required
 - Project/group ID or path
 - Action: list, create, update, or report

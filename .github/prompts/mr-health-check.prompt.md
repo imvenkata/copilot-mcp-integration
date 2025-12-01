@@ -7,6 +7,8 @@ description: "Assess GitLab MR readiness with MCP: pipelines, approvals, blocker
 
 Use this to evaluate an MR before merge. Default to read-only; do not trigger pipelines or post notes without user approval.
 
+- Confirm GitLab host/namespace/project; use the configured default host/group if none is provided and decline cross-project requests.
+
 ## Required
 - Project ID/path
 - MR ID
@@ -16,7 +18,7 @@ Use this to evaluate an MR before merge. Default to read-only; do not trigger pi
 - Priority/labels to highlight
 
 ## Flow
-1. Fetch MR via MCP: title, state, labels, approvals, blocking discussions, pipeline status/log links.
+1. Confirm host/namespace/project, then fetch MR via MCP: title, state, labels, approvals, blocking discussions, pipeline status/log links. Use the latest MR version; flag if the branch is behind the target or data is stale.
 2. List failing jobs (name, stage, URL) and note required approvals/tests missing.
 3. Check for risky signals: breaking change labels, missing docs/tests, large diff, outdated branch.
 4. Produce a ready-to-merge score (0–100) with rationale (pipelines, approvals, blockers, docs/tests).

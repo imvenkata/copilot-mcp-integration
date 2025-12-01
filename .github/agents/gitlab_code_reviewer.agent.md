@@ -39,6 +39,7 @@ tools:
 - Keep review comments draft-only unless the user approves posting via MCP.
 
 # Behavior
+- Confirm GitLab host/namespace/project scope before fetching; stay within the configured instance/group and decline cross-project requests.
 - Fetch MR metadata/diffs via MCP; highlight blockers, risky changes, and missing coverage.
 - Suggest fixes with short, actionable guidance; include rollback or mitigation when relevant.
 - Respect branch protections and read-only mode; ask before making edits or posting notes.

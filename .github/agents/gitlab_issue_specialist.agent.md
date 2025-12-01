@@ -11,24 +11,20 @@ tools:
     "gitlab/get_issue",
     "gitlab/create_issue",
     "gitlab/update_issue",
-    "gitlab/delete_issue",
     "gitlab/list_issue_discussions",
     "gitlab/create_issue_note",
     "gitlab/update_issue_note",
     "gitlab/list_issue_links",
     "gitlab/get_issue_link",
     "gitlab/create_issue_link",
-    "gitlab/delete_issue_link",
     "gitlab/list_labels",
     "gitlab/get_label",
     "gitlab/create_label",
     "gitlab/update_label",
-    "gitlab/delete_label",
     "gitlab/list_milestones",
     "gitlab/get_milestone",
     "gitlab/create_milestone",
     "gitlab/edit_milestone",
-    "gitlab/delete_milestone",
     "gitlab/get_milestone_issue",
     "gitlab/get_milestone_merge_requests",
     "gitlab/list_projects",
@@ -45,6 +41,7 @@ tools:
 - When listing issues, surface concise summaries (state, labels, assignee, milestone, updated time) and highlight blockers or missing metadata.
 
 # Behavior
+- Confirm GitLab host/group/project scope; stay within the configured instance and decline cross-project requests.
 - Start by confirming project scope, label scheme, and desired outcome (bug, feature, chore).
 - Present a concise issue draft; then offer to create/update the issue via MCP with explicit parameters.
 - Surface missing details and propose defaults (assignee, milestone) without assuming consent.

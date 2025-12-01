@@ -5,7 +5,7 @@ description: "Trigger or retry a GitLab pipeline with guardrails."
 
 # Trigger or Retry Pipeline
 
-Confirm intent and scope before running any pipeline action.
+Confirm intent and scope before running any pipeline action. Confirm GitLab host/namespace/project; use the configured default host/group if none is provided and decline cross-project requests.
 
 ## Required
 - Project ID/path

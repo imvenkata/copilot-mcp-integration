@@ -7,6 +7,8 @@ description: "Draft a well-scoped GitLab issue with labels, milestones, and owne
 
 Collect the details below, confirm with the user, then create or draft the issue via MCP if allowed.
 
+- Confirm GitLab host/namespace/project; use the configured default host/group if none is provided and decline cross-project requests.
+
 ## Required
 - Project/group
 - Title

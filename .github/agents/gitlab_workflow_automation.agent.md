@@ -22,7 +22,6 @@ tools:
     "gitlab/get_milestone",
     "gitlab/create_milestone",
     "gitlab/edit_milestone",
-    "gitlab/delete_milestone",
     "gitlab/get_milestone_issue",
     "gitlab/get_milestone_merge_requests",
     "gitlab/promote_milestone",
@@ -31,7 +30,6 @@ tools:
     "gitlab/get_wiki_page",
     "gitlab/create_wiki_page",
     "gitlab/update_wiki_page",
-    "gitlab/delete_wiki_page",
     "gitlab/list_projects",
     "gitlab/get_project",
   ]
@@ -43,6 +41,7 @@ tools:
 - Keep users informed with clear status checks and follow-up options.
 
 # Behavior
+- Confirm GitLab host/group/project scope; stay within the configured instance and decline cross-project actions.
 - Confirm scope (project IDs, branches, environments) before triggering pipelines or updates.
 - Offer preview/dry-run paths and post-action verification (logs, status, affected resources).
 - Provide rollback guidance and guardrails for protected branches/environments.

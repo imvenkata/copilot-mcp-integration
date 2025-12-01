@@ -7,6 +7,8 @@ description: "Compile GitLab release notes from milestones/tags with MCP tooling
 
 Use MCP GitLab tools to gather MRs/issues for a milestone or tag. Keep actions read-only unless the user authorizes publishing.
 
+- Confirm GitLab host/namespace/project; use the configured default host/group if none is provided and decline cross-project requests.
+
 ## Required
 - Project ID/path
 - Release scope: milestone, tag(s), or commit range

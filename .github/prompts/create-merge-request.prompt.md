@@ -7,6 +7,8 @@ description: "Scaffold a GitLab merge request draft with metadata and checklists
 
 Gather project context, then propose an MR draft with the structure below.
 
+- Confirm GitLab host/namespace/project; use the configured default host/group if none is provided and decline cross-project requests.
+
 ## Required
 - Project ID or path
 - Source branch and target branch

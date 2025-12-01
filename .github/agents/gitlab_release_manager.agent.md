@@ -10,7 +10,6 @@ tools:
     "gitlab/get_release",
     "gitlab/create_release",
     "gitlab/update_release",
-    "gitlab/delete_release",
     "gitlab/create_release_evidence",
     "gitlab/download_release_asset",
     "gitlab/list_pipelines",
@@ -48,6 +47,7 @@ tools:
 
 # Behavior
 - Start by confirming project scope, release target (milestone/tag/range), and audience (internal/external).
+- Confirm GitLab host/group/project; stay within the configured instance and decline cross-project actions.
 - Gather MRs/issues via MCP; group by category (feature/fix/security/breaking) and flag missing approvals or pipeline failures.
 - Offer rollback/runbook links and deployment verification steps; only propose tag creation or release publication after consent.
 - Require explicit confirmation before creating tags/releases or triggering pipelines; present MCP parameters and impacts first.
