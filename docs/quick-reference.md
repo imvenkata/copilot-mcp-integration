@@ -4,6 +4,8 @@ Fast lookup tables for common GitLab and Confluence MCP operations.
 
 ## GitLab Quick Commands
 
+Use the configured GitLab host/group and allowed project IDs; decline cross-project requests. Writes (push, merge, pipeline triggers, wiki/milestone changes) require explicit user approval and enabled feature flags (`USE_PIPELINE`, `USE_GITLAB_WIKI`, `USE_MILESTONE`).
+
 ### Code Review
 
 | Task              | Prompt Example                                         |
@@ -33,6 +35,8 @@ Fast lookup tables for common GitLab and Confluence MCP operations.
 | Merge MR    | `Merge merge request #30`                                                |
 | Add comment | `Add comment to MR #12 suggesting error handling improvement`            |
 
+Note: MR merges or note publication should only proceed after explicit user confirmation.
+
 ### Branches & Files
 
 | Task             | Prompt Example                                              |
@@ -51,6 +55,8 @@ Fast lookup tables for common GitLab and Confluence MCP operations.
 | Get job logs     | `Get the output of failed job #789`     |
 | Retry pipeline   | `Retry pipeline #456`                   |
 | Run manual job   | `Run manual job #789`                   |
+
+Note: Pipeline triggers/retries/play actions require explicit approval and an enabled pipeline feature flag.
 
 ### Wiki (requires `USE_GITLAB_WIKI=true`)
 
@@ -108,7 +114,10 @@ Fast lookup tables for common GitLab and Confluence MCP operations.
       "args": ["-y", "@zereight/mcp-gitlab"],
       "env": {
         "GITLAB_PERSONAL_ACCESS_TOKEN": "glpat-xxxx",
-        "GITLAB_API_URL": "https://gitlab.com/api/v4"
+        "GITLAB_API_URL": "https://gitlab.com/api/v4",
+        "GITLAB_ALLOWED_PROJECT_IDS": "12345,67890",
+        "GITLAB_GROUP_ID": "my-group",
+        "GITLAB_READ_ONLY_MODE": "true"
       }
     }
   }
@@ -122,11 +131,14 @@ Fast lookup tables for common GitLab and Confluence MCP operations.
   "env": {
     "GITLAB_USE_OAUTH": "true",
     "GITLAB_OAUTH_CLIENT_ID": "your_client_id",
+    "GITLAB_OAUTH_CLIENT_SECRET": "your_client_secret",
     "GITLAB_OAUTH_REDIRECT_URI": "http://127.0.0.1:8888/callback",
     "GITLAB_API_URL": "https://gitlab.com/api/v4"
   }
 }
 ```
+
+Ensure the redirect URI matches the GitLab application configuration; keep the client secret out of version control.
 
 ### GitLab - Read-Only Mode
 
@@ -135,6 +147,7 @@ Fast lookup tables for common GitLab and Confluence MCP operations.
   "env": {
     "GITLAB_PERSONAL_ACCESS_TOKEN": "glpat-xxxx",
     "GITLAB_API_URL": "https://gitlab.com/api/v4",
+    "GITLAB_ALLOWED_PROJECT_IDS": "12345,67890",
     "GITLAB_READ_ONLY_MODE": "true"
   }
 }
@@ -148,6 +161,8 @@ Fast lookup tables for common GitLab and Confluence MCP operations.
     "GITLAB_PERSONAL_ACCESS_TOKEN": "glpat-xxxx",
     "GITLAB_API_URL": "https://gitlab.com/api/v4",
     "GITLAB_PROJECT_ID": "12345",
+    "GITLAB_ALLOWED_PROJECT_IDS": "12345,67890",
+    "GITLAB_GROUP_ID": "my-group",
     "USE_PIPELINE": "true",
     "USE_GITLAB_WIKI": "true",
     "USE_MILESTONE": "true"
@@ -182,9 +197,11 @@ Fast lookup tables for common GitLab and Confluence MCP operations.
 | `GITLAB_PERSONAL_ACCESS_TOKEN` | Yes*     | -                             | Personal access token (*not with OAuth) |
 | `GITLAB_USE_OAUTH`             | No       | `false`                     | Enable OAuth2                           |
 | `GITLAB_OAUTH_CLIENT_ID`       | If OAuth | -                             | OAuth client ID                         |
+| `GITLAB_OAUTH_CLIENT_SECRET`   | If OAuth | -                             | OAuth client secret                     |
 | `GITLAB_API_URL`               | No       | `https://gitlab.com/api/v4` | GitLab API endpoint                     |
 | `GITLAB_PROJECT_ID`            | No       | -                             | Default project                         |
 | `GITLAB_ALLOWED_PROJECT_IDS`   | No       | -                             | Allowed projects (comma-separated)      |
+| `GITLAB_GROUP_ID`              | No       | -                             | Default group/namespace scope           |
 | `GITLAB_READ_ONLY_MODE`        | No       | `false`                     | Read-only operations                    |
 | `USE_GITLAB_WIKI`              | No       | `false`                     | Enable wiki tools                       |
 | `USE_MILESTONE`                | No       | `false`                     | Enable milestone tools                  |
@@ -214,9 +231,9 @@ Fast lookup tables for common GitLab and Confluence MCP operations.
 ```
 1. "Create branch feature/new-feature from main"
 2. [Make changes locally]
-3. "Push changes to feature/new-feature"
+3. "Push changes to feature/new-feature" (requires approval)
 4. "@workspace /create-merge-request feature/new-feature main 'Add new feature'"
-5. "@workspace /trigger-pipeline feature/new-feature"
+5. "@workspace /trigger-pipeline feature/new-feature" (requires `USE_PIPELINE=true` and approval)
 ```
 
 ### Sprint Planning Workflow
@@ -234,7 +251,7 @@ Fast lookup tables for common GitLab and Confluence MCP operations.
 1. "@workspace /create-issue 'Fix login timeout' bug 123 high"
 2. "Create branch bugfix/login-timeout from main"
 3. [Fix the bug]
-4. "@workspace /create-merge-request bugfix/login-timeout main 'Fix login timeout'"
+4. "@workspace /create-merge-request bugfix/login-timeout main 'Fix login timeout'" (confirm before posting)
 5. "Link MR to issue #42"
 ```
 
