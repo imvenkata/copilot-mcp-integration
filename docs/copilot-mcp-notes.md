@@ -48,3 +48,30 @@ Requires Copilot with MCP enabled and GitLab/Confluence tokens configured per `d
   - Global instructions apply (warn about approvals/protections).
   - Use `trigger-pipeline` prompt for the pipeline action (only if `USE_PIPELINE=true` and with explicit approval); `prepare-release-notes` prompt for notes.
   - If you touch `.gitlab-ci.yml`, the GitLab scoped instructions apply too.
+ 
+
+# Context Engineering Primitives
+
+## Overview
+
+### Custom Instructions
+* **File Pattern:** `*.instructions.md`
+* **Concept:** Rules of engagement
+
+### Reusable Prompts
+* **File Pattern:** `*.prompts.md`
+* **Concept:** Executable commands
+
+### Custom Agents
+* **File Pattern:** `*.agents.md`
+* **Concept:** Personas and workflows
+
+---
+
+## Comparison Matrix
+
+| Feature | Custom Instructions | Reusable Prompts | Custom Agents |
+| :--- | :--- | :--- | :--- |
+| **Primary purpose** | Always-on guidelines that influence all AI interactions | Specific tasks you run when needed | Different working contexts with specialized tools and instructions |
+| **Best for** | 1. Coding standards<br>2. Language-specific rules<br>3. Documentation guidelines | 1. Generate components<br>2. Increase test coverage<br>3. Atomic commit | 1. API Architect<br>2. SRE Debugger<br>3. Security Review |
+| **Usage** | Automatically applied to all requests | User runs slash command<br>(soon: auto-run) | User switches agent<br>(soon: auto-suggested) |
