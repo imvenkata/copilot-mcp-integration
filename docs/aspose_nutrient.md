@@ -44,6 +44,13 @@
 * You run **Document Engine as a Docker container** and POST the DOCX plus an **instructions JSON** to `/api/build`. Default output is PDF. ([Nutrient][8])
 * Nutrient positions Document Engine as self-hostable within your infrastructure (or managed), so it fits the “keep PII on our servers” requirement. ([Nutrient][1])
 
+* Cloud API default—documents sent to their servers (US/EU regions)
+* Self-hosted option: Document Engine (Docker), but requires license and setup
+* Zero data retention on cloud API (documents processed, not stored)
+* Python: thin client (nutrient-dws-client-python) calling REST API
+* For sensitive data: must use self-hosted Document Engine
+* Good for general-purpose conversion, but less emphasis on pixel-perfect Word matching
+
 **Python SDK reality**
 
 * For Document Engine specifically, the normal pattern is just **HTTP** from Python (`requests`, httpx, etc.). Nutrient’s docs show Python usage for their processor-style APIs via HTTP requests. ([Nutrient][9])
@@ -96,6 +103,10 @@
 * If you prefer **a hardened internal service** (Docker + offline licensing story) and are OK with conversion controls being mostly “API instruction knobs”: **Nutrient Document Engine**. ([Nutrient][11])
 
 If layout fidelity is the deciding factor, the only honest way is to run both against *your ugliest 50 DOCX files* (fonts, tracked changes, floating shapes, tables, headers/footers) and diff the resulting PDFs visually + by text extractability. The font story (availability + embedding) is usually what makes or breaks “pixel-perfect.”
+
+
+
+
 
 [1]: https://www.nutrient.io/sdk/document-engine/?utm_source=chatgpt.com "Document Engine | Self-Hosted & Cloud PDF Engine APIs"
 [2]: https://docs.aspose.com/words/python-net/convert-a-document-to-pdf/ "Convert a Document to PDF in Python|Aspose.Words for Python via .NET"
