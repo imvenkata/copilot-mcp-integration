@@ -124,3 +124,63 @@ If layout fidelity is the deciding factor, the only honest way is to run both ag
 [14]: https://purchase.aspose.com/pricing/words/python-net/ "Pricing information | Aspose.Words for Python via .NET"
 [15]: https://www.nutrient.io/sdk/pricing/ "Pricing — Find a plan that suits you"
 [16]: https://products.aspose.com/words/python-net/?utm_source=chatgpt.com "Python API to Process Word Documents"
+
+
+
+
+-------
+
+| Tool                                         | Python SDK                                                | Localhost / self-host               | Performance (typical)                                                                    | Layout fidelity (typical)                                                            | Effort to adopt                                           | Price (list)                                                                                                  |
+| -------------------------------------------- | --------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Aspose.Words for Python via .NET**         |  Native Python package                                   |  In-process                        | **High** (library, no server hop)                                                        | **Very high** (layout engine aims to closely match Word) ([Aspose Documentation][1]) | **Low** (load → `save(.pdf)`) ([Aspose Products][2])      | **$1,199** Dev Small Business; **$3,597** Dev OEM ([Aspose Purchase Portal][3])                               |
+| **GroupDocs.Conversion for Python via .NET** | Python package                                          |  In-process                        | **High** (library)                                                                       | **Very high** (explicit “preserves layout and formatting”) ([GroupDocs][4])          | **Low** (simple convert API) ([GroupDocs][4])             | **$1,199** Dev Small Business ([GroupDocs Purchase][5])                                                       |
+| **Spire.Doc for Python**                     |  Native Python package                                   |  In-process                        | **Med–High**                                                                             | **High–Very high** (good for most OOXML; quality varies on edge cases)               | **Low** (load → `SaveToFile(..., PDF)`) ([E-ICEBLUE][6])  | **$799** (free support tier shown) ([E-ICEBLUE][7])                                                           |
+| **Telerik Document Processing Libraries**    |  No native Python (wrap .NET via `pythonnet` / service) |  In-process .NET                   | **Med–High**                                                                             | **High–Very high** (DOCX import + PDF export supported) ([Telerik.com][8])           | **Medium** (build/host a small .NET wrapper)              | **$1,499 / dev** (DevCraft UI includes document processing libraries) ([Telerik.com][9])                      |
+| **Nutrient Document Engine (self-hosted)**   |  No Python SDK (use REST from Python)                   |  Docker self-host ([Nutrient][10]) | **High + scalable** (CPU-intensive workloads; sizing guidance provided) ([Nutrient][11]) | **Very high** (claims preserving layouts/fonts/tables, etc.) ([Nutrient][12])        | **Medium** (Docker + Postgres + storage) ([Nutrient][11]) | **Self-host: Contact Sales / quote** ([Nutrient][13]) *(Cloud API option starts **$75/mo**)* ([Nutrient][14]) |
+
+[1]: https://docs.aspose.com/words/python-net/convert-a-document-to-pdf/?utm_source=chatgpt.com "Convert a Document to PDF in Python"
+[2]: https://products.aspose.com/words/python-net/conversion/docx-to-pdf/?utm_source=chatgpt.com "Convert DOCX To PDF Python"
+[3]: https://purchase.aspose.com/pricing/words/python-net/ "Pricing information | Aspose.Words for Python via .NET"
+[4]: https://docs.groupdocs.com/conversion/python-net/?utm_source=chatgpt.com "GroupDocs.Conversion for Python via .NET"
+[5]: https://purchase.groupdocs.com/pricing/conversion/net/ "Pricing Information | GroupDocs.Conversion for .NET"
+[6]: https://www.e-iceblue.com/Tutorials/Python/Spire.Doc-for-Python/Program-Guide/Conversion/Python-Convert-Word-to-PDF.html?utm_source=chatgpt.com "Python: Convert Word to PDF"
+[7]: https://www.e-iceblue.com/Buy/Spire.Doc-Python.html "Spire.Doc for Python | Spire.Doc | e-iceblue"
+[8]: https://docs.telerik.com/devtools/document-processing/knowledge-base/convert-docx-to-pdf?utm_source=chatgpt.com "Convert Docx to PDF - Telerik Document Processing"
+[9]: https://www.telerik.com/purchase.aspx "
+	Purchase Telerik Software Development Tools 
+"
+[10]: https://www.nutrient.io/sdk/document-engine/getting-started/docker-deployment-ejs-templates/?utm_source=chatgpt.com "Document Engine with Docker and EJS templates"
+[11]: https://www.nutrient.io/guides/document-engine/about/requirements/ "Document Engine Requirements | Nutrient"
+[12]: https://www.nutrient.io/api/doc-to-pdf-api/?utm_source=chatgpt.com "DOC to PDF API: Convert Word to PDF - Nutrient iOS"
+[13]: https://www.nutrient.io/guides/document-engine/about/licensing/?utm_source=chatgpt.com "Licensing - Document Engine - Nutrient iOS"
+[14]: https://www.nutrient.io/api/pricing/?utm_source=chatgpt.com "API tools pricing | Nutrient DWS API"
+
+
+-----
+
+Telerik
+
+## Telerik (Document Processing / RadWordsProcessing) — Word → PDF conversion strengths (4–5 points)
+
+* **Straightforward pipeline:** import DOCX with `DocxFormatProvider`, then export to PDF with `PdfFormatProvider` (their documented “happy path”). ([Telerik.com][1])
+* **Good control over PDF output:** `PdfFormatProvider.ExportSettings` lets you tune how the PDF is produced (export behavior/settings). ([Telerik.com][2])
+* **Clear format coverage for this use case:** DOCX is supported, and PDF is supported as **export-only** in WordsProcessing (i.e., it’s explicitly designed for Word→PDF output). ([Telerik.com][3])
+* **Not limited to DOCX input:** the official demo notes you can feed DOCX/RTF/HTML/plain text and export to PDF using WordsProcessing. ([document-processing-demos.azurewebsites.net][4])
+* **Packaged as .NET libraries:** usage requires adding Telerik .NET assemblies/packages (e.g., `Telerik.Windows.Documents.*`), which is relevant if you’re planning to embed it server-side. ([Telerik.com][5])
+
+## Telerik — conversion caveats / considerations (4–5 points)
+
+* **.NET-first, not Python-first:** the conversion API is delivered as .NET libraries/assemblies (so Python usage is typically “via .NET interop or a wrapper service,” not a native Python SDK). ([Telerik.com][5])
+* **Operational guardrails added recently:** as of **Q4 2024**, WordsProcessing introduced a **mandatory timeout parameter** on new Import/Export methods (older ones marked obsolete), which matters for large/complex documents and runtime control. ([Telerik.com][6])
+* **Licensing is bundle-based:** Telerik positions the document processing libraries as part of **DevCraft UI**, listed at **$1,499 per developer** (renewable at 50% of list). ([Telerik.com][7])
+* **PDF support is not symmetric:** in WordsProcessing, **PDF is export-only**, so it’s not intended as a general “PDF in/out” engine from that library. ([Telerik.com][3])
+
+[1]: https://docs.telerik.com/devtools/document-processing/knowledge-base/convert-docx-to-pdf?utm_source=chatgpt.com "Convert Docx to PDF - Telerik Document Processing"
+[2]: https://docs.telerik.com/devtools/document-processing/libraries/radwordsprocessing/formats-and-conversion/pdf/settings?utm_source=chatgpt.com "WordsProcessing - Settings - Telerik Document Processing"
+[3]: https://docs.telerik.com/devtools/document-processing/libraries/radwordsprocessing/overview?utm_source=chatgpt.com "WordsProcessing - Overview - Telerik Document Processing"
+[4]: https://document-processing-demos.azurewebsites.net/wordsprocessing/pdf_export?utm_source=chatgpt.com "Telerik Document Processing - WordsProcessing PDF Export"
+[5]: https://docs.telerik.com/devtools/document-processing/libraries/radwordsprocessing/formats-and-conversion/pdf/pdfformatprovider?utm_source=chatgpt.com "WordsProcessing - Using PdfFormatProvider"
+[6]: https://docs.telerik.com/devtools/document-processing/libraries/radwordsprocessing/formats-and-conversion/formats-and-conversion?utm_source=chatgpt.com "WordsProcessing - Formats and Conversion"
+[7]: https://www.telerik.com/document-processing-libraries?utm_source=chatgpt.com "Telerik Document Processing Libraries"
+
+
