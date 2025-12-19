@@ -208,3 +208,9 @@ Telerik
 [12]: https://www.nutrient.io/guides/document-engine/about/licensing/?utm_source=chatgpt.com "Licensing - Document Engine - Nutrient iOS"
 [13]: https://www.nutrient.io/api/pricing/?utm_source=chatgpt.com "API tools pricing | Nutrient DWS API"
 
+
+----
+
+Upload DOCX → Parse & Index → Detect (GPT-4.1 + patterns) → Apply Masking in DOCX → **Render Preview** → Manual Redaction (page hit-test) → Re-apply Masking → Export Final Redacted DOCX
+
+
