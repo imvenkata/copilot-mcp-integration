@@ -468,9 +468,7 @@ VS Code can (experimentally) run a subagent using a different built-in/custom ag
 | Agent Skills                              | `.github/skills/<skill>/SKILL.md` (+ resources) | Auto-loaded when relevant                                 | Per task           | Specialized playbooks with scripts/templates (pytest triage, releases, deploy) | Also supports legacy `.claude/skills`; skills load progressively (metadata → instructions → resources). ([Visual Studio Code][4])                    |
 | **Subagents**                             | (no folder) `#runSubagent` tool                 | Explicit in prompt (and tool enabled)                     | One delegated task | Deep research/analysis without bloating main chat context                      | Context-isolated; returns only final result; default uses same agent/tools/model; custom-agent subagents are experimental. ([Visual Studio Code][5]) |
 
----
 
-If you want, I can also provide a **ready-to-copy “starter pack”** of these files tuned to your stack (FastAPI vs Django vs CLI lib, Poetry vs uv vs pip-tools, etc.)—but the examples above already work well as a strong default for most Python repos.
 
 [1]: https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot "Adding repository custom instructions for GitHub Copilot - GitHub Docs"
 [2]: https://code.visualstudio.com/docs/copilot/customization/prompt-files "Use prompt files in VS Code"
