@@ -1,4 +1,4 @@
-Below is an updated, **Copilot-in-VS-Code** tutorial that ties together:
+# Context Engineering
 
 * `.github/skills/` (Agent Skills)
 * `.github/instructions/` (path-specific custom instructions)
