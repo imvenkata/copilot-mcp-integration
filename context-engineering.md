@@ -1,67 +1,39 @@
-# Context Engineering
+Below is a practical “best setup” tutorial for **Python projects** using these Copilot customization building blocks:
 
-* `.github/instructions` (path-specific instructions)
-* `.github/skills` (Agent Skills)
-* `.github/agents` (custom agent profiles)
-* `.github/prompts` (prompt files)
+* `.github/copilot-instructions.md` (repo-wide instructions)
+* `.github/instructions/*.instructions.md` (path/file-type scoped instructions)
+* `.github/prompts/*.prompt.md` (on-demand reusable prompts)
+* `.github/agents/*.agent.md` (switchable personas with tool limits)
+* `.github/skills/<skill-name>/SKILL.md` (auto-loaded playbooks + resources)
 
-
-
-## The mental model (when each one gets applied)
-
-Think of these as **four different knobs**:
-
-1. **Instructions** = *always-on guidance* (repo-wide + path-specific)
-2. **Prompt files** = *on-demand “macros” you run* (usually with `/something`)
-3. **Custom agents** = *preconfigured “teammates”* (tools + behavior)
-4. **Skills** = *on-demand deep playbooks* Copilot can load when relevant
-
-GitHub explicitly recommends using **custom instructions for simple guidance relevant to almost every task**, and **skills for more detailed instructions that should be accessed only when relevant**. ([GitHub Docs][1])
+It’s worth doing all of these because they’re **not redundant**: GitHub’s guidance is to use **custom instructions for simple, always-relevant rules** and **skills for deeper, task-specific playbooks** that load only when needed. ([GitHub Docs][1])
 
 ---
 
-## Suggested repo layout
+## 1) The mental model: what loads when
 
-```text
-.github/
-  copilot-instructions.md
-  instructions/
-    backend.instructions.md
-    frontend.instructions.md
-    docs.instructions.md
-    python.instructions.md
-  prompts/
-    review-code.prompt.md
-    explain-code.prompt.md
-    debug-ci.prompt.md
-  agents/
-    planner.agent.md
-    test-specialist.agent.md
-  skills/
-    pytest-failure-triage/
-      SKILL.md
-      scripts/
-        parse_pytest_output.py
-    dependency-upgrade/
-      SKILL.md
-    release-cut/
-      SKILL.md
+### Always-on guidance (great defaults)
 
-```
+1. **Repo-wide** instructions: `.github/copilot-instructions.md` applies broadly. ([GitHub Docs][2])
+2. **Scoped** instructions: `.github/instructions/*.instructions.md` apply via `applyTo` globs, and can stack with repo-wide instructions. Avoid conflicts because Copilot’s choice between conflicting instructions can be non-deterministic. ([GitHub Docs][2])
+3. In IDEs like VS Code, instructions files are combined and ordering isn’t guaranteed; they mainly influence **create/modify** operations (and **not** inline completions). ([Visual Studio Code][3])
+
+### On-demand workflows (you explicitly invoke)
+
+* **Prompt files**: run via `/your-prompt` in chat; they’re reusable templates with YAML frontmatter (agent/tools/model/etc.). ([Visual Studio Code][4])
+  *Note:* prompt files are in public preview and currently limited to certain IDEs (VS Code / Visual Studio / JetBrains). ([GitHub Docs][5])
+
+### Persona switching (you pick an agent)
+
+* **Custom agents**: `.github/agents/*.agent.md` lets you define a “Testing Specialist”, “Security Reviewer”, etc., including tool access and whether it can be auto-selected (`infer`). ([GitHub Docs][6])
+
+### Auto-loaded playbooks (Copilot decides)
+
+* **Agent Skills**: folders under `.github/skills/<name>/SKILL.md` (or `.claude/skills` too) that Copilot injects when relevant to your prompt. ([GitHub Docs][1])
 
 ---
 
-Here’s a **copy-pasteable example set** for a typical Python repo using **pytest + ruff + mypy** (swap tools if you use different ones). I’m giving you:
-
-* `.github/copilot-instructions.md`
-* `.github/instructions/*.instructions.md`
-* `.github/prompts/*.prompt.md`
-* `.github/agents/*.agent.md`
-* `.github/skills/*/SKILL.md` (+ optional helper scripts)
-
----
-
-## Suggested layout
+## 2) Recommended Python repo layout (copy this)
 
 ```text
 .github/
@@ -71,444 +43,321 @@ Here’s a **copy-pasteable example set** for a typical Python repo using **pyte
     tests.instructions.md
     docs.instructions.md
   prompts/
-    review-python.prompt.md
-    add-pytest-tests.prompt.md
-    fix-typing.prompt.md
-    debug-ci.prompt.md
+    add-feature.prompt.md
+    write-tests.prompt.md
+    triage-ci.prompt.md
   agents/
-    planner.agent.md
     test-specialist.agent.md
-    maintainer.agent.md
+    security-reviewer.agent.md
   skills/
-    pytest-failure-triage/
+    pytest-failure-debugging/
       SKILL.md
+      notes.md
       scripts/
-        parse_pytest_output.py
-    dependency-upgrade/
-      SKILL.md
-    release-cut/
-      SKILL.md
+        reproduce.sh
 ```
 
 ---
 
-# 1) Repo-wide instructions
+## 3) Repo-wide instructions: `.github/copilot-instructions.md`
 
-## `.github/copilot-instructions.md`
+Use this for **project facts + conventions** you want applied to almost everything (commands, structure, style, “how we do things here”). ([GitHub Docs][2])
+
+**Example (Python package using `src/` layout + pytest):**
 
 ```md
-# Copilot instructions (Python project)
+# Copilot instructions for this repository (Python)
 
-## Project goals
-- Write clear, maintainable Python.
-- Prefer small, composable functions.
-- Keep side effects at the edges (I/O, network, filesystem).
+## Project layout
+- Source code lives in `src/<package_name>/`
+- Tests live in `tests/`
+- Prefer small, focused modules; avoid circular imports.
 
-## Supported Python + tooling (edit to match this repo)
-- Python: 3.11+
-- Tests: pytest
-- Lint/format: ruff
-- Type-check: mypy
+## Tooling & commands (use these defaults)
+- Run tests: `pytest -q`
+- Lint/format (if present): `ruff check .` and `ruff format .`
+- Type check (if present): `mypy src`
 
-## Commands (keep these up to date)
-- Install: `python -m pip install -r requirements-dev.txt`
-- Tests: `pytest -q`
-- Lint: `ruff check .`
-- Format: `ruff format .`
-- Types: `mypy src`
+## Coding standards
+- Prefer type hints on public functions.
+- Write docstrings for public modules/classes/functions.
+- Raise specific exceptions; avoid bare `except:`.
+- Keep functions cohesive; avoid “god” classes.
 
-## Definition of done for changes
-- All tests pass locally.
-- Lint + formatting are clean.
-- Types are clean (or clearly justified with narrow ignores).
-- Add/update tests for behavior changes.
-- Update docs/README when behavior or public APIs change.
-
-## Coding conventions
-- Prefer `pathlib.Path` over `os.path`.
-- Prefer `dataclasses` for simple data containers.
-- Prefer explicit errors with helpful messages.
-- Avoid overly clever one-liners; readability > brevity.
-- When editing existing code, match existing style and patterns.
-
-## Performance & safety
-- Avoid quadratic loops on large collections.
-- Validate external inputs early; fail fast with good messages.
-- Never log secrets (tokens, passwords, keys).
+## When making changes
+- Update/extend tests for behavior changes.
+- Keep changes minimal and consistent with existing patterns.
+- If you need config details, look for `pyproject.toml`.
 ```
 
 ---
 
-# 2) Path-specific instructions
+## 4) Scoped instructions: `.github/instructions/*.instructions.md`
 
-## `.github/instructions/python.instructions.md` (applies to all Python files)
+Use these when **different parts of your repo need different rules**. Each file starts with YAML frontmatter containing `applyTo` (glob). ([GitHub Docs][2])
+
+### `python.instructions.md` (applies to all Python files)
 
 ```md
 ---
 applyTo: "**/*.py"
 ---
+# Python rules
 
-## Python file guidance
-- Use type hints for public functions and non-trivial internals.
-- Keep functions < ~50 lines when practical; split helpers.
-- Prefer `logging` over prints; no debug prints in commits.
-- Raise specific exceptions (`ValueError`, `KeyError`, custom) with actionable messages.
-- If you add a dependency, justify it briefly in the PR description and update dependency files.
-
-## Structure
-- Keep domain logic in `src/` (or equivalent).
-- Keep CLI / entrypoints minimal and delegate to library code.
+- Prefer `pathlib.Path` over `os.path`.
+- Avoid global state; pass dependencies explicitly.
+- Use `logging` (no `print`) for non-test code.
+- Add type hints; prefer `typing` stdlib types.
+- Keep public APIs stable; don’t rename exported symbols without reason.
 ```
 
-## `.github/instructions/tests.instructions.md` (only tests)
+### `tests.instructions.md` (test-only rules)
 
 ```md
 ---
 applyTo: "tests/**/*.py"
 ---
+# Pytest rules
 
-## Pytest conventions
-- Use Arrange–Act–Assert pattern.
-- Prefer fixtures over repeated setup.
-- Avoid sleeping/time-based flakiness; use freezegun or monkeypatch time.
-- Name tests for behavior: `test_<what>__<condition>__<expected>()`
-
-## Assertions
-- Assert the most important behavior first.
-- For exceptions: use `with pytest.raises(ExpectedError, match="...")`.
+- Use Arrange/Act/Assert structure.
+- Prefer `pytest.mark.parametrize` for coverage.
+- Prefer fixtures over repeated setup code.
+- Tests should be deterministic; avoid network/time dependencies unless explicitly mocked.
 ```
 
-## `.github/instructions/docs.instructions.md` (docs + Markdown)
+### `docs.instructions.md` (markdown-only rules)
 
 ```md
 ---
 applyTo: "**/*.md"
 ---
+# Documentation rules
 
-## Documentation conventions
-- Use short paragraphs and runnable code blocks.
-- Prefer examples over prose.
-- Keep README instructions current with actual commands.
+- Show runnable examples (copy/paste friendly).
+- Prefer short sections + bullets; avoid huge walls of text.
+- Mention the exact command(s) to verify changes locally.
 ```
+
+**Important:** If both repo-wide + path-specific instructions match, Copilot can use **both**; avoid contradictions. ([GitHub Docs][2])
 
 ---
 
-# 3) Prompt files (reusable “macros”)
+## 5) Prompt files: `.github/prompts/*.prompt.md`
 
-## `.github/prompts/review-python.prompt.md`
+Prompt files are **reusable, on-demand** workflows. In VS Code you run them by typing `/prompt-name` in chat. ([Visual Studio Code][4])
+They support YAML header fields like `description`, `name`, `argument-hint`, `agent`, `model`, `tools`. ([Visual Studio Code][4])
+
+### A) “Add feature” prompt (scaffold code + tests)
+
+`.github/prompts/add-feature.prompt.md`
 
 ```md
 ---
-description: "Review Python changes with a checklist (correctness, tests, types, security)."
+name: add-feature
+description: Add a small feature with tests (Python)
+argument-hint: "feature='...' files='...'"
+agent: agent
 ---
+You are working in a Python repository.
 
-Review the selected changes (or currently open files).
-
-Output sections:
-1) Summary (1-3 bullets)
-2) Correctness risks (with file:line references if possible)
-3) Test coverage gaps (what to add)
-4) Type-hinting / API clarity issues
-5) Security or secrets risks
-6) Suggested patch (only if small and safe)
-```
-
-## `.github/prompts/add-pytest-tests.prompt.md`
-
-```md
----
-description: "Generate pytest tests for the selected code."
-argument-hint: "Target module/function and key behaviors"
----
-
-Write pytest tests for: {{args}}
+Goal:
+- Implement: ${input:feature:Describe the feature}
+- Touch these areas/files (if provided): ${input:files:Optional list of files/modules}
 
 Rules:
-- Do not modify production code unless absolutely necessary; if necessary, explain why.
-- Use existing fixtures/patterns from the repo.
+- Follow repo conventions in `.github/copilot-instructions.md` and matching `.github/instructions/*.instructions.md`.
+- Make the smallest coherent change.
+- Add/extend pytest tests in `tests/` to cover the change.
+- Provide:
+  1) What you changed (bullets)
+  2) Why
+  3) Commands to verify locally (pytest, lint/typecheck if relevant)
+```
+
+### B) “Write tests” prompt (great for existing functions)
+
+`.github/prompts/write-tests.prompt.md`
+
+```md
+---
+name: write-tests
+description: Generate pytest tests for the selected code/file
+argument-hint: "focus='edge cases' or 'happy path'"
+agent: agent
+---
+Write pytest tests for: ${file}
+
+Focus: ${input:focus:What should the tests emphasize?}
+
+Constraints:
+- Do not change production code unless absolutely required; if required, explain why.
+- Prefer parametrization and clear test names.
 - Include at least:
   - happy path
-  - one edge case
-  - one failure case (exception or invalid input)
-
-Return:
-- New/updated test files with code blocks
-- Short note explaining what each test protects
+  - edge case(s)
+  - error handling case
 ```
 
-## `.github/prompts/fix-typing.prompt.md`
+### C) “Triage CI” prompt (when GitHub Actions/CI fails)
+
+`.github/prompts/triage-ci.prompt.md`
 
 ```md
 ---
-description: "Fix mypy errors with minimal API changes."
+name: triage-ci
+description: Diagnose CI/test failures and propose minimal fixes
+argument-hint: "paste logs or link failing step"
+agent: ask
 ---
+You are diagnosing a CI failure in a Python repo.
 
-Given the current mypy errors (paste them if not visible), propose fixes that:
-- minimize public API changes
-- avoid broad `Any`
-- use narrow casts and `TypedDict`/`Protocol` when appropriate
-- keep runtime behavior unchanged
+Input (logs/error):
+${input:logs:Paste the failing output}
 
-Provide:
-- explanation of root cause
-- patch-style edits
-```
-
-## `.github/prompts/debug-ci.prompt.md`
-
-```md
----
-description: "Debug failing CI run and propose fixes."
----
-
-Use this workflow:
-1) Identify which job/step failed and why.
-2) Classify failure: test, lint, typing, packaging, env, network/flaky.
-3) Provide 1-3 likely root causes.
-4) Propose a minimal fix.
-5) Propose a regression test or guardrail to prevent recurrence.
+Deliver:
+1) Likely root cause(s) with confidence
+2) Minimal fix options (ordered)
+3) What to run locally to confirm
 ```
 
 ---
 
-# 4) Custom agents (specialized “teammates”)
+## 6) Custom agents: `.github/agents/*.agent.md`
 
-## `.github/agents/planner.agent.md`
+Custom agents are **personas you switch to**, with explicit tool access and behavior. You can create them in `.github/agents` and they show up in agent dropdowns / Copilot agent UI depending on platform. ([GitHub Docs][6])
+Key frontmatter fields include `description` (required), plus `tools`, `infer`, `target`, and optional `mcp-servers`. ([GitHub Docs][7])
 
-```md
----
-name: planner
-description: "Plans changes: breaks work into steps, highlights risks, defines tests."
-infer: true
----
+### A) Testing specialist (only cares about tests)
 
-You are a senior Python engineer focused on planning.
-
-When asked to implement something:
-- First produce a plan with steps, risks, and acceptance criteria.
-- Identify what tests should be added/updated.
-- Identify what files are likely to change.
-- Keep the plan short and actionable.
-```
-
-## `.github/agents/test-specialist.agent.md`
+`.github/agents/test-specialist.agent.md`
 
 ```md
 ---
 name: test-specialist
-description: "Writes high-quality pytest tests and improves coverage with minimal production edits."
+description: Improves pytest coverage/quality without changing production code unless requested
+tools: ["read", "search", "edit"]
 infer: true
 ---
-
-You are a testing specialist.
+You are a testing specialist for a Python repo.
 
 Rules:
-- Only change production code if tests cannot be written otherwise.
-- Prefer deterministic tests; avoid sleeps and randomness.
-- Use fixtures and parametrization.
-- Explain test intent briefly.
+- Prefer adding tests over changing prod code.
+- If prod code must change to enable testability, propose the smallest refactor and explain.
+- Use pytest idioms (fixtures, parametrization).
+- Keep tests deterministic (no network/time unless mocked).
+
+Output format:
+- Summary
+- Tests added/changed
+- How to run (commands)
+```
+
+### B) Security reviewer (read-only posture)
+
+`.github/agents/security-reviewer.agent.md`
+
+```md
+---
+name: security-reviewer
+description: Reviews Python code for common security issues and suggests fixes
+tools: ["read", "search"]
+infer: false
+---
+You are a security reviewer.
+
+Focus areas:
+- injection risks (shell/sql/template)
+- unsafe deserialization
+- authz/authn mistakes
+- secrets handling
+- dependency risks (if visible in config)
 
 Deliver:
-- test code
-- rationale for coverage
-- any follow-ups (e.g., missing seams)
+- Findings (severity + rationale)
+- Concrete remediation suggestions
+- Minimal patch guidance (but do not edit files directly)
 ```
 
-## `.github/agents/maintainer.agent.md`
+*(Tip: `infer: false` is useful for “special” agents you only want when you explicitly pick them.)* ([GitHub Docs][7])
+
+---
+
+## 7) Agent Skills: `.github/skills/<skill>/SKILL.md`
+
+Skills are **auto-loaded** when Copilot decides your prompt matches the skill’s description. A skill is a folder; the required file is `SKILL.md` with YAML frontmatter (`name`, `description`). ([GitHub Docs][1])
+
+Copilot injects the skill instructions into context when it chooses to use it, and it can also use scripts/resources bundled in the skill directory. ([GitHub Docs][1])
+
+### Example skill: Pytest failure debugging
+
+`.github/skills/pytest-failure-debugging/SKILL.md`
 
 ```md
 ---
-name: maintainer
-description: "Maintains repo hygiene: dependencies, packaging, CI, release readiness."
-infer: true
+name: pytest-failure-debugging
+description: Step-by-step playbook to reproduce and fix pytest failures locally and in CI.
 ---
+When asked to debug a failing pytest run, follow this checklist:
 
-You are the repository maintainer.
+1) Reproduce
+- Run `pytest -q` (or the command shown in CI logs).
+- If it’s order-dependent, retry with `pytest -q --maxfail=1 -x`.
 
-Focus:
-- dependency upgrades (minimal breakage)
-- packaging metadata correctness
-- CI stability
-- changelog/release notes discipline
+2) Classify the failure
+- Assertion mismatch
+- Fixture/setup error
+- Import/path issue
+- Platform-specific behavior
+- Flake (timing/randomness)
 
-When suggesting changes:
-- prefer small PRs
-- include commands to verify locally
-- call out backwards compatibility
+3) Narrow scope
+- Run only failing tests: `pytest -q path/to/test.py::test_name`
+- Use `-k` to filter, and `-vv` for detail.
+
+4) Typical fixes
+- Stabilize time/randomness via dependency injection/mocking
+- Fix fixture scope misuse
+- Ensure package import paths match `src/` layout
+- Remove reliance on test execution order
+
+5) Output
+- Root cause summary
+- Minimal patch suggestion
+- Verification commands
 ```
 
----
+Optional extra resources in the same folder (ex: `scripts/reproduce.sh`, notes, known CI quirks) become available to the agent when the skill is loaded.
 
-# 5) Skills (deep playbooks Copilot can load on-demand)
-
-## `.github/skills/pytest-failure-triage/SKILL.md`
-
-```md
----
-name: pytest-failure-triage
-description: Use when tests fail or CI shows pytest failures. Diagnose failures quickly and propose minimal fixes.
----
-
-# Pytest failure triage workflow
-
-## 1) Reproduce
-- Run the smallest failing set first:
-  - `pytest -q`
-  - then narrow: `pytest -q path/to/test_file.py::test_name -vv`
-
-## 2) Classify
-- Assertion mismatch (logic)
-- Exception mismatch (unexpected error type/message)
-- Flaky/time-related
-- Environment-dependent (paths, locale, timezone)
-- Test isolation issue (shared state)
-
-## 3) Debug efficiently
-- Print/log only in local debugging; do not commit prints.
-- Inspect fixtures and shared state.
-- Look for order dependence: `pytest -q --random-order` (if available).
-
-## 4) Fix strategy
-- Prefer fixing production bug if real.
-- Otherwise fix the test if assumptions are wrong.
-- Ensure the test checks behavior, not implementation details.
-
-## 5) Add regression coverage
-- Add a focused test for the root cause.
-- Ensure failure mode is explicit (exception + message match where useful).
-
-## Optional helper scripts
-- If pytest output is large, use `scripts/parse_pytest_output.py` to summarize.
-```
-
-### Optional helper script
-
-`/.github/skills/pytest-failure-triage/scripts/parse_pytest_output.py`
-
-```python
-#!/usr/bin/env python3
-"""
-Parse pytest output from stdin and summarize failures by test nodeid.
-
-Usage:
-  pytest -q | python .github/skills/pytest-failure-triage/scripts/parse_pytest_output.py
-"""
-from __future__ import annotations
-
-import re
-import sys
-from collections import defaultdict
-
-FAIL_RE = re.compile(r"^FAILED\s+(?P<nodeid>\S+)\s+-\s+(?P<reason>.+)$")
-
-def main() -> int:
-    reasons: dict[str, list[str]] = defaultdict(list)
-    for line in sys.stdin:
-        m = FAIL_RE.match(line.strip())
-        if m:
-            reasons[m.group("nodeid")].append(m.group("reason"))
-
-    if not reasons:
-        print("No FAILED lines detected.")
-        return 0
-
-    print("Failure summary:")
-    for nodeid, rs in reasons.items():
-        print(f"- {nodeid}")
-        for r in rs[:3]:
-            print(f"  - {r}")
-        if len(rs) > 3:
-            print(f"  - (+{len(rs)-3} more)")
-    return 1
-
-if __name__ == "__main__":
-    raise SystemExit(main())
-```
+**Compatibility note:** GitHub explicitly supports skills in `.github/skills`, and also recognizes `.claude/skills` (handy if you already have Claude Code skills). ([GitHub Docs][1])
 
 ---
 
-## `.github/skills/dependency-upgrade/SKILL.md`
+## 8) A simple “best practice” layering that works
 
-```md
----
-name: dependency-upgrade
-description: Use when upgrading Python dependencies (requirements, poetry, uv, pip-tools). Minimizes breakage and validates changes.
----
-
-# Dependency upgrade playbook
-
-## 1) Decide scope
-- Single package bump vs full refresh
-- Security-only upgrades vs feature upgrades
-
-## 2) Upgrade safely
-- Prefer upgrading one dependency group at a time.
-- Record versions and why the bump is needed.
-
-## 3) Validate
-Run:
-- `ruff check .`
-- `ruff format .` (if applicable)
-- `mypy src`
-- `pytest -q`
-
-## 4) If breakage occurs
-- Identify API changes in upstream release notes.
-- Add/adjust compatibility shims only if needed.
-- Update tests to reflect intended behavior.
-
-## 5) Deliverable
-- Updated lock/requirements files
-- Short changelog entry (if repo uses one)
-- Notes about any behavior changes
-```
+1. Put **global repo truths** in `copilot-instructions.md` (structure, commands, standards). ([GitHub Docs][2])
+2. Put **file-specific rules** in `.github/instructions/` with tight `applyTo` globs. ([GitHub Docs][2])
+3. Put **repeatable workflows** in `.github/prompts/` (add feature, write tests, triage CI). ([Visual Studio Code][4])
+4. Put **role/persona behavior** in `.github/agents/` (test specialist, security reviewer). ([GitHub Docs][6])
+5. Put **deep playbooks + scripts** in `.github/skills/` (auto-loaded). ([GitHub Docs][1])
 
 ---
 
-## `.github/skills/release-cut/SKILL.md`
+## Comparison table
 
-```md
----
-name: release-cut
-description: Use when preparing a Python release (PyPI package). Checks versioning, changelog, tags, and CI.
----
+| Feature                    | Path / filename                                          | Activated how?                                                                | Scope                  | Best for                                                          | Notes / gotchas                                                                                                                                                                                 |
+| -------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repo-wide instructions     | `.github/copilot-instructions.md`                        | Automatically included in repo context                                        | Whole repo             | Always-relevant conventions (structure, commands, coding style)   | Stacks with path-specific instructions. ([GitHub Docs][2])                                                                                                                                      |
+| Path-specific instructions | `.github/instructions/*.instructions.md` with `applyTo:` | Automatically when edited file matches glob; can be manually attached in IDEs | Specific files/folders | Different rules for `src/`, `tests/`, `docs/`                     | Avoid contradictions; conflicts can behave non-deterministically; IDEs may combine in no guaranteed order. ([GitHub Docs][2])                                                                   |
+| Prompt files               | `.github/prompts/*.prompt.md`                            | You run it (e.g., `/write-tests`)                                             | Task-specific          | Repeatable workflows (scaffold feature, write tests, review code) | Frontmatter supports `agent/tools/model`; currently preview + IDE-limited. ([Visual Studio Code][4])                                                                                            |
+| Custom agents              | `.github/agents/*.agent.md`                              | You select agent; can also be auto-used if `infer:true`                       | Persona-level          | “Testing specialist”, “Security reviewer”, “Planner”              | Configurable tools (`tools`), auto-selection (`infer`), target env (`target`). Some VS Code-only fields may be ignored on GitHub.com. ([GitHub Docs][7])                                        |
+| Agent Skills               | `.github/skills/<skill>/SKILL.md`                        | Copilot auto-loads when skill description matches your request                | Skill folder           | Deep playbooks + scripts/resources for specialized tasks          | `SKILL.md` required; injected when used; `.claude/skills` also supported; works across Copilot coding agent/CLI/VS Code Insiders (stable support coming soon per changelog). ([GitHub Docs][1]) |
 
-# Release cut checklist (Python)
+If you tell me your current Python stack (FastAPI/Django/CLI/lib, pytest/unittest, ruff/black/mypy, src/ layout or not), I can tailor the exact file contents (especially the `applyTo` globs and the prompts) to match your repo.
 
-## 1) Ensure main is green
-- CI passing
-- `pytest -q`, `ruff check .`, `mypy src`
-
-## 2) Versioning
-- Update version in the canonical place:
-  - `pyproject.toml` (preferred) or `src/<pkg>/__init__.py`
-- Confirm semver intent:
-  - PATCH: bugfix
-  - MINOR: backward-compatible features
-  - MAJOR: breaking changes
-
-## 3) Changelog / release notes
-- Summarize user-visible changes.
-- Include upgrade notes if behavior changed.
-
-## 4) Packaging sanity checks
-- `python -m build`
-- `twine check dist/*` (if used)
-- Verify included files (MANIFEST / package_data).
-
-## 5) Tagging + publishing (adjust to your process)
-- Tag: `vX.Y.Z`
-- Publish via CI or maintainers’ process.
-```
-
----
-
-## Quick “what goes where” for Python repos
-
-* Put **commands and “definition of done”** in `copilot-instructions.md`
-* Put **language-specific rules** in `.github/instructions/python.instructions.md`
-* Put **testing style rules** in `.github/instructions/tests.instructions.md`
-* Put your **team’s repeatable workflows** into `.github/prompts/*.prompt.md`
-* Create **role agents** (planner/tester/maintainer) in `.github/agents`
-* Put **deep runbooks** (CI triage, release process, dependency upgrades) in `.github/skills`
-
+[1]: https://docs.github.com/copilot/concepts/agents/about-agent-skills "About Agent Skills - GitHub Docs"
+[2]: https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot "Adding repository custom instructions for GitHub Copilot - GitHub Docs"
+[3]: https://code.visualstudio.com/docs/copilot/customization/custom-instructions "Use custom instructions in VS Code"
+[4]: https://code.visualstudio.com/docs/copilot/customization/prompt-files "Use prompt files in VS Code"
+[5]: https://docs.github.com/en/copilot/tutorials/customization-library/prompt-files/your-first-prompt-file "Your first prompt file - GitHub Docs"
+[6]: https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-custom-agents "Creating custom agents - GitHub Docs"
+[7]: https://docs.github.com/en/copilot/reference/custom-agents-configuration "Custom agents configuration - GitHub Docs"
