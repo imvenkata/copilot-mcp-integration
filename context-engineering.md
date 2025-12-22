@@ -2,11 +2,15 @@
 
 * `.github/skills/` (Agent Skills)
 * `.github/instructions/` (path-specific custom instructions)
+* `.github/copilot-instructions.md` (repo-wide custom instructions)
+* `AGENTS.md` (agent instructions for Copilot agents; can be nested)
 * `.github/agents/` (custom agents)
 * `.github/prompts/` (prompt files)
 * **Subagents** (`#runSubagent`) and where they fit
 
 Everything is shown with **Python-project** examples.
+
+> **Scope note:** This tutorial is about **Copilot Chat / agents** (e.g., in VS Code and on GitHub). Custom instructions influence chat/agent behavior, but **do not affect inline suggestions** as you type in the editor. ([Visual Studio Code][6])
 
 ---
 
@@ -14,26 +18,22 @@ Everything is shown with **Python-project** examples.
 
 Think in **layers**, from “always-on rules” → “on-demand workflows” → “specialized capabilities” → “runtime orchestration”.
 
-1. **Always-on guidance**
-
-* `.github/copilot-instructions.md` (repo-wide rules)
-* `.github/instructions/*.instructions.md` (path-specific rules with `applyTo` globs) ([GitHub Docs][1])
+1. **Always-on guidance (chat/agents)**
+   * `.github/copilot-instructions.md` (repo-wide rules)
+   * `.github/instructions/*.instructions.md` (path-specific rules with `applyTo` globs) ([GitHub Docs][1])
+   * `AGENTS.md` (agent instructions, can be placed in subfolders; nearest one wins) ([GitHub Docs][1])
 
 2. **On-demand workflows**
-
-* `.github/prompts/*.prompt.md` (run with `/…` in chat; can pick agent/model/tools) ([Visual Studio Code][2])
+   * `.github/prompts/*.prompt.md` (run with `/…` in chat; can pick agent/model/tools) ([Visual Studio Code][2])
 
 3. **Personas / modes**
-
-* `.github/agents/*.agent.md` (custom agents with their own instructions + tool/model limits + handoffs) ([Visual Studio Code][3])
+   * `.github/agents/*.agent.md` (custom agents with their own instructions + tool/model limits + handoffs) ([Visual Studio Code][3])
 
 4. **Reusable “capabilities”**
-
-* `.github/skills/<skill>/SKILL.md` (+ scripts/templates/resources next to it). Copilot loads a skill when its description matches your task. ([Visual Studio Code][4])
+   * `.github/skills/<skill>/SKILL.md` (+ scripts/templates/resources next to it). Copilot loads a skill when its description matches your task. ([Visual Studio Code][4])
 
 5. **Subagents**
-
-* Not a file/folder. It’s a **tool** you invoke (`#runSubagent`) to delegate a task into an isolated context and keep the main chat clean. ([Visual Studio Code][5])
+   * Not a file/folder. It’s a **tool** you invoke (`#runSubagent`) to delegate a task into an isolated context and keep the main chat clean. ([Visual Studio Code][5])
 
 ---
 
@@ -62,13 +62,15 @@ Here’s a solid default structure you can drop into most Python repos:
     packaging-release/
       SKILL.md
       release_checklist.md
-```
+
+AGENTS.md
+````
 
 ---
 
 ## 1) Repo-wide custom instructions: `.github/copilot-instructions.md`
 
-This file applies broadly across the repo. ([GitHub Docs][1])
+This file applies broadly across the repo (for chat/agents). ([GitHub Docs][1])
 
 **Example (`.github/copilot-instructions.md`)**
 
@@ -102,6 +104,7 @@ This file applies broadly across the repo. ([GitHub Docs][1])
 ## 2) Path-specific instructions: `.github/instructions/*.instructions.md`
 
 These let you apply rules only to specific files/paths via `applyTo` globs. ([GitHub Docs][1])
+
 If both repo-wide and path-specific apply, **both are used**; avoid conflicts because resolution can be non-deterministic. ([GitHub Docs][1])
 
 ### Example A — Python style rules
@@ -149,6 +152,38 @@ excludeAgent: "code-review"
 
 ---
 
+## 2.5) Agent instructions: `AGENTS.md`
+
+If you use **Copilot agents** (for example, Copilot coding agent), you can add `AGENTS.md` to teach agents how to build/test/validate in a specific area of the repo.
+
+Key behaviors (GitHub):
+
+* You can place **one** `AGENTS.md` at the repo root, and/or **nested** `AGENTS.md` files inside subfolders.
+* When an agent is working in a folder, the **nearest `AGENTS.md` in the directory tree takes precedence**. ([GitHub Docs][1])
+
+**Example (`AGENTS.md`)**
+
+```md
+# Agent instructions
+
+## Build & test
+- Use Python 3.12.
+- Install dependencies with: `python -m pip install -e ".[dev]"`.
+- Run checks in this order:
+  1) `ruff check .`
+  2) `pytest -q`
+
+## Safety
+- Never commit secrets.
+- Don’t add dependencies without explaining why.
+
+## PR hygiene
+- Keep diffs small and focused.
+- Update tests for any behavior changes.
+```
+
+---
+
 ## 3) Prompt files: `.github/prompts/*.prompt.md`
 
 Prompt files are reusable workflows you run on demand:
@@ -156,6 +191,9 @@ Prompt files are reusable workflows you run on demand:
 * In VS Code chat, type `/` + prompt name ([Visual Studio Code][2])
 * They support YAML frontmatter like `agent`, `model`, and `tools` ([Visual Studio Code][2])
 * Tool priority: prompt tools > referenced agent tools > selected agent defaults ([Visual Studio Code][2])
+* If a tool listed in `tools:` isn’t available, **VS Code ignores it**. ([Visual Studio Code][2])
+
+> **Tool call syntax (prompt bodies):** to explicitly reference a tool in the *body* of a prompt file, use `#tool:<tool-name>` (example: `#tool:githubRepo`). ([Visual Studio Code][2])
 
 ### Example 1 — Add a FastAPI endpoint (implementation workflow)
 
@@ -164,7 +202,7 @@ Prompt files are reusable workflows you run on demand:
 name: add-fastapi-endpoint
 description: Add a FastAPI endpoint with schema, tests, and docs update.
 agent: agent
-tools: ["search", "readFile", "edit", "runTests", "runInTerminal"]
+tools: ["search/codebase", "editFiles", "runTests", "runTasks"]
 argument-hint: "path=/v1/widgets method=GET"
 ---
 
@@ -190,7 +228,7 @@ Steps:
 name: write-pytests
 description: Write pytest unit tests for the selected code.
 agent: agent
-tools: ["readFile", "search", "edit"]
+tools: ["search/codebase", "editFiles"]
 argument-hint: "target=<module or file> focus=<edge cases?>"
 ---
 
@@ -215,7 +253,7 @@ This is where you start weaving **subagents** into your “library”.
 name: triage-failing-tests
 description: Diagnose failing pytest runs and propose minimal fixes.
 agent: agent
-tools: ["runTests", "runInTerminal", "readFile", "search", "runSubagent"]
+tools: ["runTests", "runTasks", "search/codebase", "editFiles", "runSubagent"]
 argument-hint: "scope=tests or scope=full"
 ---
 
@@ -223,24 +261,27 @@ Run tests and triage failures.
 
 Process:
 1) Run the relevant pytest command.
-2) Use #runSubagent to analyze the failure output and likely root causes.
+2) Use #tool:runSubagent to analyze the failure output and likely root causes.
 3) Apply the smallest fix that matches repo patterns.
 4) Re-run tests until green.
 5) Summarize root cause + fix.
 ```
 
-Why include `runSubagent` in `tools`? Because if you run prompt files or custom agents, VS Code recommends explicitly listing `runSubagent` in the frontmatter tools list. ([Visual Studio Code][5])
+Why include `runSubagent` in `tools`? Because if you run prompt files or custom agents, VS Code recommends explicitly listing tools you intend to use in the frontmatter tools list. ([Visual Studio Code][2])
 
 ---
 
 ## 4) Custom agents: `.github/agents/*.agent.md`
 
 Custom agents are “modes” you select in the Agents dropdown. VS Code detects `.md` files in `.github/agents/`. ([Visual Studio Code][3])
+
 They support:
 
 * `tools`, `model`, etc.
 * `handoffs` to guide a multi-step flow (plan → implement → review) ([Visual Studio Code][3])
 * `infer` to allow/disallow being used as a subagent (default true) ([Visual Studio Code][3])
+
+> **Tool call syntax (agent bodies):** to explicitly reference a tool in the body of an agent file, use `#tool:<tool-name>`. ([Visual Studio Code][3])
 
 ### Agent A — Planner
 
@@ -248,7 +289,7 @@ They support:
 ---
 name: Planner
 description: Plan changes without editing code.
-tools: ["search", "readFile", "runSubagent"]
+tools: ["search/codebase", "githubRepo", "runSubagent"]
 infer: true
 handoffs:
   - label: Start Implementation
@@ -261,7 +302,7 @@ You are in planning mode for a Python codebase.
 
 Rules:
 - Do not edit code.
-- If you need deeper investigation, delegate it to #runSubagent and only bring back the conclusions.
+- If you need deeper investigation, delegate it to #tool:runSubagent and only bring back the conclusions.
 - Output a plan with:
   - Overview
   - File-by-file changes
@@ -275,7 +316,7 @@ Rules:
 ---
 name: Implementer
 description: Implement planned changes and keep tests green.
-tools: ["search", "readFile", "edit", "runTests", "runInTerminal", "runSubagent"]
+tools: ["search/codebase", "editFiles", "runTests", "runTasks", "runSubagent"]
 infer: true
 handoffs:
   - label: Run Review
@@ -287,7 +328,7 @@ handoffs:
 You implement changes in a Python repo.
 
 Rules:
-- Follow `.github/copilot-instructions.md` and relevant `.github/instructions/*.instructions.md`.
+- Follow `.github/copilot-instructions.md`, relevant `.github/instructions/*.instructions.md`, and the closest `AGENTS.md`.
 - Make the smallest change that satisfies requirements.
 - Add/adjust pytest tests.
 - Keep commits/diffs focused.
@@ -299,7 +340,7 @@ Rules:
 ---
 name: Reviewer
 description: Review for correctness, security, and maintainability.
-tools: ["readFile", "search"]
+tools: ["search/codebase", "problems"]
 infer: false
 ---
 
@@ -320,6 +361,7 @@ Output:
 ## 5) Agent Skills: `.github/skills/<skill>/SKILL.md`
 
 Skills are portable “capabilities” that Copilot can auto-load when relevant. ([Visual Studio Code][4])
+
 VS Code supports skills in:
 
 * `.github/skills/` (recommended)
@@ -411,7 +453,10 @@ Key behaviors:
 
 * Not asynchronous/background; they run autonomously but inline. ([Visual Studio Code][5])
 * By default they use the same agent/tools/model as the main chat, and can’t create more subagents. ([Visual Studio Code][5])
-* You invoke them via the **`runSubagent` tool** (often referenced as `#runSubagent`). ([Visual Studio Code][8])
+* You invoke them via the **`runSubagent` tool**:
+
+  * In prompt/agent file bodies: `#tool:runSubagent` ([Visual Studio Code][2])
+  * In an interactive chat message, you can also reference tools by typing `#` and selecting `runSubagent` from the tool list. ([Visual Studio Code][8])
 
 ### How to enable/use subagents
 
@@ -421,7 +466,7 @@ Key behaviors:
 Example prompts:
 
 * “Use a subagent to analyze why CI pytest is failing and return the most likely root cause and fix.” ([Visual Studio Code][5])
-* “Analyze `pyproject.toml` and recommend the minimal dependency changes needed for feature X, using `#runSubagent`.” (pattern from VS Code guidance) ([Visual Studio Code][9])
+* “Analyze `pyproject.toml` and recommend the minimal dependency changes needed for feature X, using `#tool:runSubagent`.” ([Visual Studio Code][2])
 
 ### Using a *custom agent* as a subagent (Experimental)
 
@@ -453,6 +498,7 @@ VS Code can (experimentally) run a subagent using a different built-in/custom ag
 * “I want a different persona/mode for a while” → **Custom agent**
 * “This is a specialized playbook with scripts/templates” → **Skill**
 * “This requires deep investigation but I don’t want to pollute main chat” → **Subagent**
+* “This is agent-only operational guidance (build/test/validate) in part of the repo” → **AGENTS.md**
 
 ---
 
@@ -460,15 +506,16 @@ VS Code can (experimentally) run a subagent using a different built-in/custom ag
 
 | Item                                      | Where it lives                                  | Trigger                                                   | Scope              | Best for                                                                       | Notes / gotchas                                                                                                                                      |
 | ----------------------------------------- | ----------------------------------------------- | --------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Repo-wide custom instructions             | `.github/copilot-instructions.md`               | Automatic                                                 | Whole repo         | Global conventions (Python version, tooling, testing expectations)             | Can be generated in VS Code (“Generate Chat Instructions”). ([Visual Studio Code][6])                                                                |
+| Repo-wide custom instructions             | `.github/copilot-instructions.md`               | Automatic                                                 | Whole repo         | Global conventions (Python version, tooling, testing expectations)             | Applies to chat/agents; **not** used for inline suggestions. ([Visual Studio Code][6])                                                               |
 | Path-specific custom instructions         | `.github/instructions/*.instructions.md`        | Automatic when working on matching files                  | Per `applyTo` glob | Different rules for `src/` vs `tests/` vs `scripts/`                           | If repo-wide + path-specific both apply, both are used; avoid conflicts. ([GitHub Docs][1])                                                          |
+| Agent instructions                        | `AGENTS.md` (can be nested)                     | Automatic for agents                                      | Directory-scoped   | Agent-only operational guidance (build/test/validate, repo conventions)        | Nearest `AGENTS.md` in the directory tree takes precedence. ([GitHub Docs][1])                                                                       |
 | Agent-specific filtering for instructions | frontmatter `excludeAgent`                      | Automatic                                                 | Per agent          | Keep review guidance separate from implementation guidance                     | `excludeAgent` supports targeting (e.g., hide from code review). ([The GitHub Blog][7])                                                              |
-| Prompt files                              | `.github/prompts/*.prompt.md`                   | Run via `/prompt-name` (or play button / command palette) | One run            | Repeatable workflows: add endpoint, write tests, triage CI                     | Can set `agent`, `model`, `tools`; tool priority is prompt > agent > defaults. ([Visual Studio Code][2])                                             |
-| Custom agents                             | `.github/agents/*.agent.md`                     | Select in Agents dropdown                                 | While selected     | “Modes”: Planner, Implementer, Reviewer                                        | Support `handoffs` and `infer` (subagent eligibility). ([Visual Studio Code][3])                                                                     |
+| Prompt files                              | `.github/prompts/*.prompt.md`                   | Run via `/prompt-name` (or play button / command palette) | One run            | Repeatable workflows: add endpoint, write tests, triage CI                     | Can set `agent`, `model`, `tools`; tool priority is prompt > agent > defaults. If a tool isn’t available, it’s ignored. ([Visual Studio Code][2])    |
+| Custom agents                             | `.github/agents/*.agent.md`                     | Select in Agents dropdown                                 | While selected     | “Modes”: Planner, Implementer, Reviewer                                        | Support `handoffs` and `infer` (subagent eligibility). Use `#tool:<tool>` in bodies. ([Visual Studio Code][3])                                       |
 | Agent Skills                              | `.github/skills/<skill>/SKILL.md` (+ resources) | Auto-loaded when relevant                                 | Per task           | Specialized playbooks with scripts/templates (pytest triage, releases, deploy) | Also supports legacy `.claude/skills`; skills load progressively (metadata → instructions → resources). ([Visual Studio Code][4])                    |
-| **Subagents**                             | (no folder) `#runSubagent` tool                 | Explicit in prompt (and tool enabled)                     | One delegated task | Deep research/analysis without bloating main chat context                      | Context-isolated; returns only final result; default uses same agent/tools/model; custom-agent subagents are experimental. ([Visual Studio Code][5]) |
+| **Subagents**                             | (no folder) `runSubagent` tool                  | Explicit in prompt (and tool enabled)                     | One delegated task | Deep research/analysis without bloating main chat context                      | Context-isolated; returns only final result; default uses same agent/tools/model; custom-agent subagents are experimental. ([Visual Studio Code][5]) |
 
-
+---
 
 [1]: https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot "Adding repository custom instructions for GitHub Copilot - GitHub Docs"
 [2]: https://code.visualstudio.com/docs/copilot/customization/prompt-files "Use prompt files in VS Code"
@@ -480,3 +527,6 @@ VS Code can (experimentally) run a subagent using a different built-in/custom ag
 [8]: https://code.visualstudio.com/docs/copilot/reference/copilot-vscode-features "GitHub Copilot in VS Code cheat sheet"
 [9]: https://code.visualstudio.com/blogs/2025/11/03/unified-agent-experience "A Unified Experience for all Coding Agents"
 [10]: https://code.visualstudio.com/docs/copilot/reference/copilot-settings "GitHub Copilot in VS Code settings reference"
+
+::contentReference[oaicite:0]{index=0}
+```
